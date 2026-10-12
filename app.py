@@ -166,6 +166,7 @@ def reports():
     return render_template("reports.html", monthly=monthly, categories=categories)
 
 
+init_db()
+
 if __name__ == "__main__":
-    init_db()
     app.run(debug=True)
