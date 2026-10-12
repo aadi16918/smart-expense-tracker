@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Reports | Smart Expense Tracker{% endblock %}
+{% block content %}
+<section class="page-heading"><div><p class="eyebrow">INSIGHTS</p><h1>Reports</h1><p class="muted">Understand your monthly cash flow.</p></div><a class="button secondary" href="{{ url_for('home') }}">← Dashboard</a></section>
+<section class="panel"><h2>Monthly summary</h2><div class="table-wrap"><table><thead><tr><th>Month</th><th>Income</th><th>Expenses</th><th>Net</th></tr></thead><tbody>
+{% for m in monthly %}<tr><td>{{ m.month }}</td><td class="income-text">₹{{ "%.2f"|format(m.income) }}</td><td class="expense-text">₹{{ "%.2f"|format(m.expense) }}</td><td>₹{{ "%.2f"|format(m.income-m.expense) }}</td></tr>
+{% else %}<tr><td colspan="4" class="empty-state">No report data yet. Add transactions first.</td></tr>{% endfor %}
+</tbody></table></div></section>
+<section class="panel"><h2>Expense categories</h2><div class="table-wrap"><table><thead><tr><th>Category</th><th>Total spent</th></tr></thead><tbody>
+{% for c in categories %}<tr><td>{{ c.category }}</td><td>₹{{ "%.2f"|format(c.total) }}</td></tr>{% else %}<tr><td colspan="2" class="empty-state">No expenses recorded yet.</td></tr>{% endfor %}
+</tbody></table></div></section>
+{% endblock %}

@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Dashboard | Smart Expense Tracker{% endblock %}
+{% block content %}
+<section class="page-heading">
+  <div><p class="eyebrow">PERSONAL FINANCE</p><h1>Your Dashboard</h1><p class="muted">Manage your income and expenses in one place.</p></div>
+  <a class="button secondary" href="{{ url_for('reports') }}">View reports ↗</a>
+</section>
+<section class="summary-grid">
+  <article class="summary-card income-card"><span>Total Income</span><strong>₹{{ "%.2f"|format(income) }}</strong><small>Money received</small></article>
+  <article class="summary-card expense-card"><span>Total Expenses</span><strong>₹{{ "%.2f"|format(expense) }}</strong><small>Money spent</small></article>
+  <article class="summary-card balance-card"><span>Available Balance</span><strong>₹{{ "%.2f"|format(balance) }}</strong><small>Income minus expenses</small></article>
+</section>
+<section class="panel">
+  <div class="panel-heading"><div><h2>Add transaction</h2><p class="muted">Record money coming in or going out.</p></div></div>
+  <form method="post" action="{{ url_for('add') }}" class="transaction-form">
+    <label>Description<input name="title" placeholder="e.g. Groceries or salary" maxlength="100" required></label>
+    <label>Amount (₹)<input name="amount" type="number" min="0.01" step="0.01" placeholder="0.00" required></label>
+    <label>Type<select name="kind" required><option value="Expense">Expense</option><option value="Income">Income</option></select></label>
+    <label>Category<select name="category">{% for c in categories %}<option>{{ c }}</option>{% endfor %}</select></label>
+    <label>Date<input name="date" type="date" value="{{ today }}" required></label>
+    <button class="button primary" type="submit">＋ Add transaction</button>
+  </form>
+</section>
+<section class="panel">
+  <div class="panel-heading"><div><h2>Recent transactions</h2><p class="muted">{{ transactions|length }} transaction(s) recorded</p></div>
+  <input id="transactionSearch" class="search-input" type="search" placeholder="Search transactions…"></div>
+  <div class="table-wrap"><table id="transactionsTable">
+    <thead><tr><th>Description</th><th>Category</th><th>Type</th><th>Amount</th><th>Date</th><th>Actions</th></tr></thead>
+    <tbody>
+    {% for t in transactions %}
+      <tr>
+        <td class="title-cell">{{ t.title }}</td><td>{{ t.category }}</td>
+        <td><span class="pill {{ 'positive' if t.kind == 'Income' else 'negative' }}">{{ t.kind }}</span></td>
+        <td class="money">₹{{ "%.2f"|format(t.amount) }}</td><td>{{ t.date }}</td>
+        <td class="actions"><a class="edit-link" href="{{ url_for('edit', transaction_id=t.id) }}">Edit</a>
+        <form class="inline-form delete-form" method="post" action="{{ url_for('delete', transaction_id=t.id) }}"><button class="delete-link" type="submit">Delete</button></form></td>
+      </tr>
+    {% else %}
+      <tr><td colspan="6" class="empty-state">No transactions yet. Add your first one above!</td></tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+</section>
+<section class="panel chart-panel">
+  <div class="panel-heading"><div><h2>Expense breakdown</h2><p class="muted">Expenses grouped by category</p></div></div>
+  {% if category_labels %}
+    <div class="chart-wrap"><canvas id="expenseChart"></canvas></div>
+  {% else %}<p class="empty-state">Add an expense to see your chart.</p>{% endif %}
+</section>
+{% endblock %}
+{% block scripts %}
+<script>
+const labels = {{ category_labels|tojson }};
+const values = {{ category_values|tojson }};
+const canvas = document.getElementById("expenseChart");
+if (canvas && labels.length) {
+  new Chart(canvas, {
+    type: "doughnut",
+    data: { labels, datasets: [{ data: values, borderWidth: 2 }] },
+    options: { responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: "bottom" } } }
+  });
+}
+</script>
+{% endblock %}
