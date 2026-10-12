@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Edit Transaction | Smart Expense Tracker{% endblock %}
+{% block content %}
+<section class="form-page panel">
+  <a class="back-link" href="{{ url_for('home') }}">← Back to dashboard</a>
+  <h1>Edit transaction</h1><p class="muted">Update the details and save your changes.</p>
+  <form method="post" class="edit-form">
+    <label>Description<input name="title" value="{{ transaction.title }}" maxlength="100" required></label>
+    <label>Amount (₹)<input name="amount" type="number" min="0.01" step="0.01" value="{{ transaction.amount }}" required></label>
+    <label>Type<select name="kind"><option value="Income" {% if transaction.kind == 'Income' %}selected{% endif %}>Income</option><option value="Expense" {% if transaction.kind == 'Expense' %}selected{% endif %}>Expense</option></select></label>
+    <label>Category<select name="category">{% for c in categories %}<option value="{{ c }}" {% if transaction.category == c %}selected{% endif %}>{{ c }}</option>{% endfor %}</select></label>
+    <label>Date<input type="date" name="date" value="{{ transaction.date }}" required></label>
+    <div class="form-actions"><button class="button primary" type="submit">Save changes</button><a class="button secondary" href="{{ url_for('home') }}">Cancel</a></div>
+  </form>
+</section>
+{% endblock %}
